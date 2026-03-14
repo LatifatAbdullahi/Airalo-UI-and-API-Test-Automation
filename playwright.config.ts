@@ -1,18 +1,15 @@
 import path from 'path';
 import { defineConfig, devices } from '@playwright/test';
 
-// Load .env for API tests (client_id, client_secret, etc.)
+
 import dotenv from 'dotenv';
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: 0, 
   workers: process.env.CI ? 1 : undefined,
   timeout: 60_000,
   expect: { timeout: 10_000 },
@@ -29,6 +26,7 @@ export default defineConfig({
     {
       name: 'chromium',
       testMatch: /tests\/ui\/.*\.spec\.ts/,
+      retries: process.env.CI ? 2 : 1,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1280, height: 585 },
@@ -37,6 +35,7 @@ export default defineConfig({
     {
       name: 'api',
       testMatch: /tests\/api\/.*\.spec\.ts/,
+      retries: 0,
       use: {
         baseURL: 'https://partners-api.airalo.com/v2',
       },

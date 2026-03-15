@@ -52,7 +52,7 @@ class HomePage {
 
     async selectFromSearchResults(text: string) {
     const searchBox = this.page.getByPlaceholder(selector.homepage.searchBoxField);
-    const resultsList = this.page.locator(selector.homepage.searchResultsList);
+    const resultsList = this.page.getByRole('listbox').or(this.page.locator(selector.homepage.searchResultsList));
     const resultOption = resultsList.getByText(text, { exact: false }).first();
 
     await searchBox.waitFor({ state: 'visible' });
@@ -60,7 +60,7 @@ class HomePage {
     await this.dismissCookieModalIfPresent();
 
     const maxAttempts = 5;
-    const listVisibleTimeout = 100;
+    const listVisibleTimeout = 3000;
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const visible = await resultsList.waitFor({ state: 'visible', timeout: listVisibleTimeout }).then(() => true).catch(() => false);
       if (visible) break;
@@ -70,10 +70,8 @@ class HomePage {
       await this.dismissCookieModalIfPresent();
     }
 
-    await resultsList.waitFor({ state: 'visible' });
-    await this.dismissCookieModalIfPresent();
-
     await resultOption.waitFor({ state: 'visible' });
+    await this.dismissCookieModalIfPresent();
     await resultOption.scrollIntoViewIfNeeded();
     await resultOption.click();
     }
@@ -95,8 +93,8 @@ class HomePage {
     }
 
     async click7DaysPackage() {
-    const packageOption = this.page.getByLabel(/Select Unlimited - 7 days/i);
-    await packageOption.waitFor({ state: 'visible', timeout: 1_000 });
+    const packageOption = this.page.locator(selector.homepage.sevenDaysPackage);
+    await packageOption.waitFor({ state: 'visible', timeout: 15_000 });
     await packageOption.scrollIntoViewIfNeeded();
     await packageOption.click();
     } 

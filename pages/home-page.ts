@@ -93,8 +93,8 @@ class HomePage {
     }
 
     async click7DaysPackage() {
-    const packageOption = this.page.locator(selector.homepage.sevenDaysPackage);
-    await packageOption.waitFor({ state: 'visible', timeout: 15_000 });
+    const packageOption = this.page.getByLabel(/Select Unlimited - 7 days/i);
+    await packageOption.waitFor({ state: 'visible', timeout: 1_000 });
     await packageOption.scrollIntoViewIfNeeded();
     await packageOption.click();
     } 
@@ -102,7 +102,18 @@ class HomePage {
     async getPackageAndTotalPrice(): Promise<{ packagePrice: string; totalPrice: string }> {
     await this.page.locator(selector.homepage.packagePrice).waitFor({ state: 'visible' });
 
-    const totalPriceLocator = this.page.getByText(/£[\d.]+/).last();
+    const totalPriceLocator = this.page.getByText(/[£$][\d.]+/).last();
+    await totalPriceLocator.waitFor({ state: 'visible' });
+
+    const packagePrice = await this.page.locator(selector.homepage.packagePrice).innerText();
+    const totalPrice = await totalPriceLocator.innerText();
+    return { packagePrice, totalPrice };
+    }
+
+    async getPackageAndTotalPrice1(): Promise<{ packagePrice: string; totalPrice: string }> {
+    await this.page.locator(selector.homepage.packagePrice).waitFor({ state: 'visible' });
+
+    const totalPriceLocator = this.page.getByText(/[£$][\d.]+/).last();
     await totalPriceLocator.waitFor({ state: 'visible' });
 
     const packagePrice = await this.page.locator(selector.homepage.packagePrice).innerText();

@@ -8,8 +8,8 @@
         "searchResultOption": "#v-0-8 > li:nth-child(1)",
         "locationHeading": "store-location_location-heading",
         "unlimitedTab": "segmented-control_tab-unlimited",
-        "sevenDaysPackage": "[data-pc-name='tabpanel']> div > div:nth-child(3) > button > div > div",
-        "packagePrice": "//div[@class='flex items-center gap-1']//span[@class='typography-title-2'][normalize-space()='£21.00']",
+        "sevenDaysPackage": "card-package_container",
+        "packagePrice": "[aria-label='Select Unlimited - 7 days for £21.00.']>div>div>div>div:nth-of-type(2)",
         "totalPrice": "body>div:nth-child(9)>div>div>div>div:nth-of-type(2)>div>div>span"
     }
 }

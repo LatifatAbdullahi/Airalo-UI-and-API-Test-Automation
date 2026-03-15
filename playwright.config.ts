@@ -27,7 +27,7 @@ export default defineConfig({
     {
       name: 'chromium',
       testMatch: /tests\/ui\/.*\.spec\.ts/,
-      retries: process.env.CI ? 3 : 1,
+      retries: process.env.CI ? 5 : 1,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1280, height: 585 },

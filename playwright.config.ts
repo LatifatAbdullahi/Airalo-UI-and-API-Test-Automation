@@ -18,6 +18,7 @@ export default defineConfig({
     baseURL: 'https://www.airalo.com/',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    headless: true,
     video: 'on-first-retry',
   },
 

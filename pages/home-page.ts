@@ -59,17 +59,22 @@ class HomePage {
     await searchBox.scrollIntoViewIfNeeded();
     await this.dismissCookieModalIfPresent();
 
-    const dropdownVisible = await resultsList.isVisible().catch(() => false);
-    if (!dropdownVisible) {
+    const maxAttempts = 5;
+    const listVisibleTimeout = 3000;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const visible = await resultsList.waitFor({ state: 'visible', timeout: listVisibleTimeout }).then(() => true).catch(() => false);
+      if (visible) break;
       await searchBox.scrollIntoViewIfNeeded();
       await searchBox.click({ force: true });
       await searchBox.press('Enter');
+      await this.dismissCookieModalIfPresent();
     }
 
     await resultsList.waitFor({ state: 'visible' });
     await this.dismissCookieModalIfPresent();
 
     await resultOption.waitFor({ state: 'visible' });
+    await resultOption.scrollIntoViewIfNeeded();
     await resultOption.click();
     }
 

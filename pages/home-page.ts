@@ -14,6 +14,7 @@ class HomePage {
     const acceptButton = this.page.getByRole('button', { name: 'Accept basic cookies', exact: true });
     try {
       await acceptButton.click({ timeout });
+      await acceptButton.waitFor({ state: 'hidden', timeout: 2000 }).catch(() => {});
     } catch {
     }
   }
@@ -29,6 +30,7 @@ class HomePage {
 
   async dismissCookieAndNotificationModals() {
     await this.dismissCookieModalIfPresent();
+    await this.page.waitForTimeout(300); 
     await this.dismissNotificationModalIfPresent();
   } 
 
@@ -49,14 +51,26 @@ class HomePage {
     }
 
     async selectFromSearchResults(text: string) {
-    await this.page.getByPlaceholder(selector.homepage.searchBoxField).press('Enter');
+    const searchBox = this.page.getByPlaceholder(selector.homepage.searchBoxField);
+    const resultsList = this.page.locator(selector.homepage.searchResultsList);
+    const resultOption = resultsList.getByText(text, { exact: false }).first();
+
+    await searchBox.waitFor({ state: 'visible' });
+    await searchBox.scrollIntoViewIfNeeded();
     await this.dismissCookieModalIfPresent();
-    await this.page.getByPlaceholder(selector.homepage.searchBoxField).press('Enter');
-    await this.page.locator(selector.homepage.searchResultsList).waitFor({ state: 'visible' });
+
+    const dropdownVisible = await resultsList.isVisible().catch(() => false);
+    if (!dropdownVisible) {
+      await searchBox.scrollIntoViewIfNeeded();
+      await searchBox.click({ force: true });
+      await searchBox.press('Enter');
+    }
+
+    await resultsList.waitFor({ state: 'visible' });
     await this.dismissCookieModalIfPresent();
-    await this.page.getByPlaceholder(selector.homepage.searchBoxField).scrollIntoViewIfNeeded();
-    await this.page.getByPlaceholder(selector.homepage.searchBoxField).press('Enter');
-    await this.page.locator(selector.homepage.searchResultOption).getByText(text).click();
+
+    await resultOption.waitFor({ state: 'visible' });
+    await resultOption.click();
     }
 
     getLocationHeading() {

@@ -90,8 +90,11 @@ class HomePage {
     }
 
     async click7DaysPackage() {
-    await this.page.getByLabel(selector.homepage.sevenDaysPackage).click();
-    }; 
+    const packageOption = this.page.getByLabel(selector.homepage.sevenDaysPackage);
+    await packageOption.waitFor({ state: 'visible', timeout: 15_000 });
+    await packageOption.scrollIntoViewIfNeeded();
+    await packageOption.click();
+    } 
 
     async getPackageAndTotalPrice(): Promise<{ packagePrice: string; totalPrice: string }> {
     await this.page.locator(selector.homepage.packagePrice).waitFor({ state: 'visible' });

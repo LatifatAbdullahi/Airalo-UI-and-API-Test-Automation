@@ -95,9 +95,9 @@ class HomePage {
     }
 
     async click7DaysPackage() {
-    const packageOption = this.page.getByLabel(selector.homepage.sevenDaysPackage);
-    // await packageOption.waitFor({ state: 'visible' });
-    // await packageOption.scrollIntoViewIfNeeded();
+    const packageOption = this.page.getByLabel(/Select Unlimited - 7 days/i);
+    await packageOption.waitFor({ state: 'visible', timeout: 1_000 });
+    await packageOption.scrollIntoViewIfNeeded();
     await packageOption.click();
     } 
 

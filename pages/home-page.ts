@@ -60,7 +60,7 @@ class HomePage {
     await this.dismissCookieModalIfPresent();
 
     const maxAttempts = 5;
-    const listVisibleTimeout = 3000;
+    const listVisibleTimeout = 100;
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const visible = await resultsList.waitFor({ state: 'visible', timeout: listVisibleTimeout }).then(() => true).catch(() => false);
       if (visible) break;
@@ -96,7 +96,7 @@ class HomePage {
 
     async click7DaysPackage() {
     const packageOption = this.page.getByLabel(selector.homepage.sevenDaysPackage);
-    await packageOption.waitFor({ state: 'visible', timeout: 15_000 });
+    await packageOption.waitFor({ state: 'visible' });
     await packageOption.scrollIntoViewIfNeeded();
     await packageOption.click();
     } 

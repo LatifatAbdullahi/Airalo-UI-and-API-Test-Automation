@@ -6,6 +6,7 @@ test.describe("@ui eSim Package selection flow", () => {
     const homePage = new HomePage(page);
 
     await homePage.navigate();
+    await homePage.dismissCookieModalIfPresent();
     await expect(homePage.getAiraloLogo()).toBeVisible();
 
     await homePage.typeInSearchBox("Japan");
@@ -21,5 +22,6 @@ test.describe("@ui eSim Package selection flow", () => {
     const { packagePrice, totalPrice } = await homePage.getPackageAndTotalPrice();
     console.log('Compared prices:', { packagePrice, totalPrice });
     expect(packagePrice).toBe(totalPrice);
-  });
+  })
+
 });

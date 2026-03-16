@@ -5,34 +5,9 @@ import { Page } from "@playwright/test";
 class HomePage {
   constructor(private page: Page) {}
 
-  async navigate() {
-     await this.page.goto('/');
-  }
-
-  async dismissCookieModalIfPresent() {
-    const timeout = 500;
-    const acceptButton = this.page.getByRole('button', { name: 'Accept basic cookies', exact: true });
-    try {
-      await acceptButton.click({ timeout });
-      await acceptButton.waitFor({ state: 'hidden', timeout: 2000 }).catch(() => {});
-    } catch {
+    async navigate() {
+    await this.page.goto('/');
     }
-  }
-
-  async dismissNotificationModalIfPresent() {
-    const shortTimeout = 500;
-    const dismissButton = this.page.getByRole('button', { name: /Don't allow/i });
-    try {
-      await dismissButton.click({ timeout: shortTimeout });
-    } catch {
-    }
-  }
-
-  async dismissCookieAndNotificationModals() {
-    await this.dismissCookieModalIfPresent();
-    await this.page.waitForTimeout(300); 
-    await this.dismissNotificationModalIfPresent();
-  } 
 
     getAiraloLogo() {
     return this.page.getByAltText(selector.homepage.airaloLogo);
@@ -52,27 +27,24 @@ class HomePage {
 
     async selectFromSearchResults(text: string) {
     const searchBox = this.page.getByPlaceholder(selector.homepage.searchBoxField);
-    const resultsList = this.page.getByRole('listbox').or(this.page.locator(selector.homepage.searchResultsList));
-    const resultOption = resultsList.getByText(text, { exact: false }).first();
+    const resultOption = this.page
+      .getByRole('listbox')
+      .or(this.page.locator(selector.homepage.searchResultsList))
+      .getByText(text)
 
+    await this.dismissCookieModalIfPresent();
     await searchBox.waitFor({ state: 'visible' });
     await searchBox.scrollIntoViewIfNeeded();
-    await this.dismissCookieModalIfPresent();
+    await searchBox.click();
+    await searchBox.press('Enter');
 
-    const maxAttempts = 5;
-    const listVisibleTimeout = 3000;
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const visible = await resultsList.waitFor({ state: 'visible', timeout: listVisibleTimeout }).then(() => true).catch(() => false);
-      if (visible) break;
-      await searchBox.scrollIntoViewIfNeeded();
-      await searchBox.click({ force: true });
+    const listVisible = await resultOption.waitFor({ state: 'visible' }).then(() => true).catch(() => false);
+    if (!listVisible) {
+      await searchBox.click();
       await searchBox.press('Enter');
-      await this.dismissCookieModalIfPresent();
     }
 
     await resultOption.waitFor({ state: 'visible' });
-    await this.dismissCookieModalIfPresent();
-    await resultOption.scrollIntoViewIfNeeded();
     await resultOption.click();
     }
 
@@ -100,24 +72,31 @@ class HomePage {
     } 
 
     async getPackageAndTotalPrice(): Promise<{ packagePrice: string; totalPrice: string }> {
-    await this.page.getByTestId('price_amount').waitFor({ state: 'visible' });
+    const packageLocator = this.page.getByRole('button', { name: /Select Unlimited - 7 days/i });
+    await packageLocator.scrollIntoViewIfNeeded();
+    await packageLocator.click();
+
+    const packagePriceLocator = packageLocator.getByTestId(selector.homepage.packagePrice);
+    await packagePriceLocator.waitFor({ state: 'visible' });
+    const packagePrice = (await packagePriceLocator.innerText()).trim();
 
     const totalPriceLocator = this.page.getByText(/[£$][\d.]+/).last();
     await totalPriceLocator.waitFor({ state: 'visible' });
+    const totalPrice = (await totalPriceLocator.innerText()).trim();
 
-    const packagePrice = await this.page.getByTestId('price_amount').innerText();
-    const totalPrice = await totalPriceLocator.innerText();
     return { packagePrice, totalPrice };
     }
 
-    async getPackageAndTotalPrice1(): Promise<{ packagePrice: string; totalPrice: string }> {
-    await this.page.getByTestId('price_amount').waitFor({ state: 'visible' });
-
-    const totalPriceLocator = this.page.getByText(/[£$][\d.]+/).last();
-
-    const packagePrice = await this.page.locator(selector.homepage.packagePrice).innerText();
-    const totalPrice = await totalPriceLocator.innerText();
-    return { packagePrice, totalPrice };
+  async dismissCookieModalIfPresent() {
+    const acceptButton = this.page.getByRole('button', { name: 'Accept basic cookies', exact: true });
+    try {
+      await acceptButton.waitFor({ state: 'visible', timeout: 10_000 });
+      await acceptButton.click();
+      await acceptButton.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+    } catch {
     }
+  }
+
+
 }
 export default HomePage;

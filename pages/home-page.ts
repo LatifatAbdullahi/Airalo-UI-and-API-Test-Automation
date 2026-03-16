@@ -10,7 +10,7 @@ class HomePage {
   }
 
   async dismissCookieModalIfPresent() {
-    const timeout = 1500;
+    const timeout = 500;
     const acceptButton = this.page.getByRole('button', { name: 'Accept basic cookies', exact: true });
     try {
       await acceptButton.click({ timeout });
@@ -30,7 +30,7 @@ class HomePage {
 
   async dismissCookieAndNotificationModals() {
     await this.dismissCookieModalIfPresent();
-    await this.page.waitForTimeout(1000); 
+    await this.page.waitForTimeout(300); 
     await this.dismissNotificationModalIfPresent();
   } 
 
@@ -60,7 +60,7 @@ class HomePage {
     await this.dismissCookieModalIfPresent();
 
     const maxAttempts = 5;
-    const listVisibleTimeout = 5000;
+    const listVisibleTimeout = 3000;
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const visible = await resultsList.waitFor({ state: 'visible', timeout: listVisibleTimeout }).then(() => true).catch(() => false);
       if (visible) break;
@@ -94,32 +94,29 @@ class HomePage {
 
     async click7DaysPackage() {
     const packageOption = this.page.getByLabel(/Select Unlimited - 7 days/i);
-    await packageOption.waitFor({ state: 'visible', timeout: 4_000 });
+    await packageOption.waitFor({ state: 'visible', timeout: 1_000 });
     await packageOption.scrollIntoViewIfNeeded();
     await packageOption.click();
     } 
 
     async getPackageAndTotalPrice(): Promise<{ packagePrice: string; totalPrice: string }> {
-    const packagePriceLocator = this.page.getByRole('button', { name: /Select Unlimited - 7 days/i }).getByTestId('price_amount');
-    await packagePriceLocator.waitFor({ state: 'visible' });
+    await this.page.getByTestId('price_amount').waitFor({ state: 'visible' });
 
     const totalPriceLocator = this.page.getByText(/[£$][\d.]+/).last();
     await totalPriceLocator.waitFor({ state: 'visible' });
 
-    const packagePrice = (await packagePriceLocator.innerText()).trim();
-    const totalPrice = (await totalPriceLocator.innerText()).trim();
+    const packagePrice = await this.page.getByTestId('price_amount').innerText();
+    const totalPrice = await totalPriceLocator.innerText();
     return { packagePrice, totalPrice };
     }
 
     async getPackageAndTotalPrice1(): Promise<{ packagePrice: string; totalPrice: string }> {
-    const packagePriceLocator = this.page.getByRole('button', { name: /Select Unlimited - 7 days/i }).getByTestId('price_amount');
-    await packagePriceLocator.waitFor({ state: 'visible' });
+    await this.page.getByTestId('price_amount').waitFor({ state: 'visible' });
 
     const totalPriceLocator = this.page.getByText(/[£$][\d.]+/).last();
-    await totalPriceLocator.waitFor({ state: 'visible' });
 
-    const packagePrice = (await packagePriceLocator.innerText()).trim();
-    const totalPrice = (await totalPriceLocator.innerText()).trim();
+    const packagePrice = await this.page.locator(selector.homepage.packagePrice).innerText();
+    const totalPrice = await totalPriceLocator.innerText();
     return { packagePrice, totalPrice };
     }
 }
